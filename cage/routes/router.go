@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"../controllers"
+	"../models"
 	"github.com/gorilla/mux"
 )
 
@@ -18,6 +19,7 @@ type Routes []Route
 
 func NewRouter() *mux.Router {
 	controller := &controllers.Controller{Name: "API.Controller"}
+	controller.Manager = models.NewManager()
 	api_route := "/house/api/v1"
 
 	AuthRoutes := Routes{
@@ -132,6 +134,12 @@ func NewRouter() *mux.Router {
 			"GET",
 			api_route + "/employee/{id}/roles",
 			controllers.AuthenticationMiddleware(controller.GetRoles),
+		},
+		Route{
+			"GetRoster",
+			"GET",
+			api_route + "/roster",
+			controllers.AuthenticationMiddleware(controller.GetRoster),
 		},
 	}
 
