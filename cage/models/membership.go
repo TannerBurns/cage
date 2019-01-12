@@ -54,7 +54,7 @@ func (membership *Membership) CreateMembership(db *sql.DB, TransactionType strin
 func (membership *Membership) AddPlayTime(db *sql.DB, TransactionType string) (err error) {
 	query := `UPDATE memberships 
 				SET amount = amount + $1,
-					playtime = playtime + $2
+					playtime = playtime - $2
 				WHERE player_id=$3
 				RETURNING id`
 	err = db.QueryRow(query, membership.Amount, membership.PlayTime, membership.PlayerID).Scan(&membership.ID)
@@ -66,6 +66,19 @@ func (membership *Membership) AddPlayTime(db *sql.DB, TransactionType string) (e
 
 	_, err = db.Query(query, membership.ID, membership.PlayerID, membership.EmployeeID,
 		TransactionType, membership.Amount)
+	return
+}
+
+func (membership *Membership) UpdatePlayTime(db *sql.DB) (err error) {
+	query := `UPDATE memberships 
+				SET amount = amount - $1,
+					playtime = playtime + $2
+				WHERE player_id=$3
+				RETURNING id`
+	err = db.QueryRow(query, membership.Amount, membership.PlayTime, membership.PlayerID).Scan(&membership.ID)
+	if err != nil {
+		return
+	}
 	return
 }
 

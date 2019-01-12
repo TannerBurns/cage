@@ -77,6 +77,18 @@ func NewRouter() *mux.Router {
 			api_route + "/player/{id}/membership",
 			controllers.AuthenticationMiddleware(controller.AddPlayTime),
 		},
+		Route{
+			"CheckIn",
+			"GET",
+			api_route + "/player/{id}/checkin",
+			controllers.AuthenticationMiddleware(controller.CheckIn),
+		},
+		Route{
+			"CheckOut",
+			"Get",
+			api_route + "/player/{id}/checkout",
+			controllers.AuthenticationMiddleware(controller.CheckOut),
+		},
 	}
 	EmployeeRoutes := Routes{
 		Route{

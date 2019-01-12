@@ -1,8 +1,7 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
+	"math"
 )
 
 type Manager struct {
@@ -10,25 +9,23 @@ type Manager struct {
 }
 
 type CheckedInPlayers struct {
-	Id        int
+	ID        int
 	timer     Timer
 	PlayTime  int
 	ErrorChan chan error
 }
 
-func (check *CheckedInPlayers) Play(db *sql.DB) (err error) {
+func (check *CheckedInPlayers) Play() (err error) {
 	check.ErrorChan = make(chan error)
 
-	go func(db *sql.DB) {
-		// TODO: GET PlayTime from membership
-		fmt.Println("Starting")
-		membership := Membership{PlayerID: check.Id}
-		err := membership.GetPlayTime(db)
-		if err != nil {
-			//DO SOMETHING WITH THIS ERROR
-			fmt.Println(err)
-			//return
-		}
+	go func() {
+		/*
+			err = membership.GetPlayTime(db)
+			if err != nil {
+				//DO SOMETHING WITH THIS ERROR
+				fmt.Println(err)
+				//return
+			}*/
 		// make sure player has playtime before check in
 		/*check.PlayTime = membership.PlayTime
 		if check.PlayTime > 0 {
@@ -36,7 +33,6 @@ func (check *CheckedInPlayers) Play(db *sql.DB) (err error) {
 		}*/
 		check.timer.Start()
 		defer func() {
-			// TODO: do teardown work
 
 		}()
 		for {
@@ -48,27 +44,39 @@ func (check *CheckedInPlayers) Play(db *sql.DB) (err error) {
 					return
 				}*/
 			case <-check.ErrorChan:
-				// TODO: CLEANUP WHEN STOPPING
-				fmt.Println("Stopping")
 				check.timer.Stop()
-				fmt.Println(check.Id, check.timer.TotalElapsed)
+				postclient := PostgresConnection{}
+				db, err := postclient.Connect()
+				if err != nil {
+					return
+				}
+				defer db.Close()
+				membership := Membership{PlayerID: check.ID}
+				err = membership.GetPlayTime(db)
+				if err != nil {
+					return
+				}
+				membership.PlayTime += int(math.Round(check.timer.TotalElapsed))
+				membership.Amount = membership.PlayTime / 360
+				err = membership.UpdatePlayTime(db)
 				return
 			}
 		}
-	}(db)
+	}()
+
 	return
 }
 
-func (manager *Manager) CheckIn(db *sql.DB, PlayerID int) (err error) {
-	checkIn := CheckedInPlayers{Id: PlayerID}
-	err = checkIn.Play(db)
+func (manager *Manager) CheckIn(PlayerID int) (err error) {
+	checkIn := CheckedInPlayers{ID: PlayerID}
+	err = checkIn.Play()
 	manager.Roster = append(manager.Roster, checkIn)
 	return
 }
 
 func (manager *Manager) CheckOut(PlayerID int) {
 	for ind := range manager.Roster {
-		if manager.Roster[ind].Id == PlayerID {
+		if manager.Roster[ind].ID == PlayerID {
 			close(manager.Roster[ind].ErrorChan)
 			if ind == 0 {
 				manager.Roster = append(manager.Roster[:ind+1], manager.Roster[ind+1:]...)

@@ -12,3 +12,8 @@ type JwtToken struct {
 type RespError struct {
 	Error string `json:"error"`
 }
+
+type ManagerResp struct {
+	PlayerID int    `json:"player_id"`
+	Status   string `json:"status"`
+}

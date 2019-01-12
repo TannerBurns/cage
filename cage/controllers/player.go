@@ -241,3 +241,100 @@ func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(players)
 	return
 }
+
+func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	//connect to database
+	postclient := models.PostgresConnection{}
+	db, err := postclient.Connect()
+	if err != nil {
+		error := models.RespError{Error: "Failed to connect, cannot reach database"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+	defer db.Close()
+
+	auth := models.Authentication{Decoded: context.Get(req, "decoded")}
+	ok, err := auth.Authorize(db, 3)
+	if err != nil {
+		error := models.RespError{Error: "Failed to authorize, error during authorization"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+	if !ok {
+		error := models.RespError{Error: "Failed to authorize, error during authorization. Make sure you have permissions to use this route."}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 401)
+		return
+	}
+
+	params := mux.Vars(req)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		error := models.RespError{Error: "Id is required in route"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+
+	err = c.Manager.CheckIn(id)
+	if err != nil {
+		error := models.RespError{Error: "Failed to check in player"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 404)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(models.ManagerResp{PlayerID: id, Status: "checked in"})
+	return
+}
+
+func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	//connect to database
+	postclient := models.PostgresConnection{}
+	db, err := postclient.Connect()
+	if err != nil {
+		error := models.RespError{Error: "Failed to connect, cannot reach database"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+	defer db.Close()
+
+	auth := models.Authentication{Decoded: context.Get(req, "decoded")}
+	ok, err := auth.Authorize(db, 3)
+	if err != nil {
+		error := models.RespError{Error: "Failed to authorize, error during authorization"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+	if !ok {
+		error := models.RespError{Error: "Failed to authorize, error during authorization. Make sure you have permissions to use this route."}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 401)
+		return
+	}
+
+	params := mux.Vars(req)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		error := models.RespError{Error: "Id is required in route"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		return
+	}
+
+	c.Manager.CheckOut(id)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(models.ManagerResp{PlayerID: id, Status: "checked out"})
+	return
+}
