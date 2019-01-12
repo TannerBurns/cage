@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -290,7 +291,22 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.ManagerResp{PlayerID: id, Status: "checked in"})
+	membership := models.Membership{PlayerID: id}
+	err = membership.GetMembership(db)
+	if err != nil {
+		json.NewEncoder(w).Encode(models.ManagerResp{
+			PlayerID:   id,
+			Status:     "checked in, error retrieving membership information",
+			TimePlayed: 0,
+			AmountOwed: 0})
+	} else {
+		json.NewEncoder(w).Encode(models.ManagerResp{
+			PlayerID:   id,
+			Status:     "checked in",
+			TimePlayed: membership.PlayTime,
+			AmountOwed: membership.Amount})
+	}
+
 	return
 }
 
@@ -333,8 +349,23 @@ func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	tp := c.Manager.Roster[id].PlayerTimer.Elapsed()
 	c.Manager.CheckOut(id)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.ManagerResp{PlayerID: id, Status: "checked out"})
+	membership := models.Membership{PlayerID: id}
+	err = membership.GetMembership(db)
+	if err != nil {
+		json.NewEncoder(w).Encode(models.ManagerResp{
+			PlayerID:   id,
+			Status:     "checked out, failed to retrieve player membership",
+			TimePlayed: int(tp),
+			AmountOwed: int(math.Round(tp / 360))})
+	} else {
+		json.NewEncoder(w).Encode(models.ManagerResp{
+			PlayerID:   id,
+			Status:     "checked out",
+			TimePlayed: membership.PlayTime + int(tp),
+			AmountOwed: membership.Amount - int(math.Round(tp/360))})
+	}
 	return
 }

@@ -14,6 +14,12 @@ type RespError struct {
 }
 
 type ManagerResp struct {
-	PlayerID int    `json:"player_id"`
-	Status   string `json:"status"`
+	PlayerID   int    `json:"player_id"`
+	Status     string `json:"status"`
+	TimePlayed int    `json:"time_played"`
+	AmountOwed int    `json:"amount_owed"`
+}
+
+type ManagerRoster struct {
+	Responses []ManagerResp `json:"roster"`
 }

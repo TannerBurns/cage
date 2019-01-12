@@ -5,33 +5,26 @@ import (
 )
 
 type Manager struct {
-	Roster []CheckedInPlayers
+	Roster map[int]CheckedInPlayers
 }
 
 type CheckedInPlayers struct {
-	ID        int
-	timer     Timer
-	PlayTime  int
-	ErrorChan chan error
+	ID          int
+	PlayerTimer *Timer
+	ErrorChan   chan string
+}
+
+func NewManager() *Manager {
+	manager := &Manager{}
+	manager.Roster = make(map[int]CheckedInPlayers)
+	return manager
 }
 
 func (check *CheckedInPlayers) Play() (err error) {
-	check.ErrorChan = make(chan error)
+	check.ErrorChan = make(chan string)
 
 	go func() {
-		/*
-			err = membership.GetPlayTime(db)
-			if err != nil {
-				//DO SOMETHING WITH THIS ERROR
-				fmt.Println(err)
-				//return
-			}*/
-		// make sure player has playtime before check in
-		/*check.PlayTime = membership.PlayTime
-		if check.PlayTime > 0 {
-			check.timer.Start()
-		}*/
-		check.timer.Start()
+		check.PlayerTimer.Start()
 		defer func() {
 
 		}()
@@ -44,7 +37,7 @@ func (check *CheckedInPlayers) Play() (err error) {
 					return
 				}*/
 			case <-check.ErrorChan:
-				check.timer.Stop()
+				check.PlayerTimer.Stop()
 				postclient := PostgresConnection{}
 				db, err := postclient.Connect()
 				if err != nil {
@@ -56,8 +49,8 @@ func (check *CheckedInPlayers) Play() (err error) {
 				if err != nil {
 					return
 				}
-				membership.PlayTime += int(math.Round(check.timer.TotalElapsed))
-				membership.Amount = membership.PlayTime / 360
+				membership.PlayTime = int(check.PlayerTimer.TotalElapsed)
+				membership.Amount = int(math.Round(check.PlayerTimer.TotalElapsed / 360))
 				err = membership.UpdatePlayTime(db)
 				return
 			}
@@ -69,20 +62,13 @@ func (check *CheckedInPlayers) Play() (err error) {
 
 func (manager *Manager) CheckIn(PlayerID int) (err error) {
 	checkIn := CheckedInPlayers{ID: PlayerID}
+	checkIn.PlayerTimer = NewTimer()
 	err = checkIn.Play()
-	manager.Roster = append(manager.Roster, checkIn)
+	manager.Roster[PlayerID] = checkIn
 	return
 }
 
 func (manager *Manager) CheckOut(PlayerID int) {
-	for ind := range manager.Roster {
-		if manager.Roster[ind].ID == PlayerID {
-			close(manager.Roster[ind].ErrorChan)
-			if ind == 0 {
-				manager.Roster = append(manager.Roster[:ind+1], manager.Roster[ind+1:]...)
-			} else {
-				manager.Roster = append(manager.Roster[:ind], manager.Roster[ind+1:]...)
-			}
-		}
-	}
+	close(manager.Roster[PlayerID].ErrorChan)
+	delete(manager.Roster, PlayerID)
 }

@@ -17,7 +17,7 @@ Controller - structure to make multiple controllers if needed
 */
 type Controller struct {
 	Name    string
-	Manager models.Manager
+	Manager *models.Manager
 }
 
 /*

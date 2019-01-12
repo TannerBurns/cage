@@ -11,6 +11,10 @@ type Timer struct {
 	TotalElapsed float64
 }
 
+func NewTimer() *Timer {
+	return &Timer{}
+}
+
 func (timer *Timer) Start() {
 	timer.StartTime = time.Now()
 }
