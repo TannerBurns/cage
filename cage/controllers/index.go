@@ -21,7 +21,7 @@ func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
-
+	c.Logger.Logging(r, 200)
 	json.NewEncoder(w).Encode(Status{Status: "OK", Name: "The House", Version: "1.0.0"})
 	return
 }

@@ -20,6 +20,7 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
 		return
 	}
 	defer db.Close()
@@ -30,12 +31,14 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 		error := models.RespError{Error: "Failed to authorize, error during authorization"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
 		return
 	}
 	if !ok {
 		error := models.RespError{Error: "Failed to authorize, error during authorization. Make sure you have permissions to use this route."}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 401)
+		c.Logger.Logging(req, 401)
 		return
 	}
 
@@ -60,6 +63,7 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 
 	}
 	w.WriteHeader(http.StatusOK)
+	c.Logger.Logging(req, 200)
 	json.NewEncoder(w).Encode(roster)
 	return
 }

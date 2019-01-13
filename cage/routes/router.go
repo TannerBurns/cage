@@ -17,9 +17,10 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter() *mux.Router {
+func NewRouter() (*mux.Router, *models.Logger) {
 	controller := &controllers.Controller{Name: "API.Controller"}
 	controller.Manager = models.NewManager()
+	controller.Logger = models.NewLogger()
 	api_route := "/house/api/v1"
 
 	AuthRoutes := Routes{
@@ -158,5 +159,5 @@ func NewRouter() *mux.Router {
 				Handler(handler)
 		}
 	}
-	return router
+	return router, controller.Logger
 }

@@ -18,6 +18,7 @@ Controller - structure to make multiple controllers if needed
 type Controller struct {
 	Name    string
 	Manager *models.Manager
+	Logger  *models.Logger
 }
 
 /*
@@ -78,6 +79,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
 		return
 	}
 	defer db.Close()
@@ -88,6 +90,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 		error := models.RespError{Error: "Error during authorization validation. Please check credentials"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
 		return
 	}
 
@@ -101,8 +104,10 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 		error := models.RespError{Error: "Make sure you have permissions to use this route.Failed  to get token"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	c.Logger.Logging(req, 200)
 	json.NewEncoder(w).Encode(models.JwtToken{Token: tokenString, EmployeeID: employeeLogin.ID})
 }
