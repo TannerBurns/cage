@@ -327,16 +327,18 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	err = membership.GetMembership(db)
 	if err != nil {
 		json.NewEncoder(w).Encode(models.ManagerResp{
-			PlayerID:   id,
-			Status:     "checked in, error retrieving membership information",
-			TimePlayed: 0,
-			AmountOwed: 0})
+			PlayerID:        id,
+			Status:          "checked in, error retrieving membership information",
+			CheckedInTime:   0,
+			TotalTimePlayed: 0,
+			AmountOwed:      0})
 	} else {
 		json.NewEncoder(w).Encode(models.ManagerResp{
-			PlayerID:   id,
-			Status:     "checked in",
-			TimePlayed: membership.PlayTime,
-			AmountOwed: membership.Amount})
+			PlayerID:        id,
+			Status:          "checked in",
+			CheckedInTime:   0,
+			TotalTimePlayed: membership.PlayTime,
+			AmountOwed:      membership.Amount})
 	}
 
 	return
@@ -393,16 +395,18 @@ func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 	err = membership.GetMembership(db)
 	if err != nil {
 		json.NewEncoder(w).Encode(models.ManagerResp{
-			PlayerID:   id,
-			Status:     "checked out, failed to retrieve player membership",
-			TimePlayed: int(tp),
-			AmountOwed: int(math.Round(tp / 360))})
+			PlayerID:        id,
+			Status:          "checked out, failed to retrieve player membership",
+			CheckedInTime:   int(tp),
+			TotalTimePlayed: 0,
+			AmountOwed:      int(math.Round(tp / 360))})
 	} else {
 		json.NewEncoder(w).Encode(models.ManagerResp{
-			PlayerID:   id,
-			Status:     "checked out",
-			TimePlayed: membership.PlayTime + int(tp),
-			AmountOwed: membership.Amount - int(math.Round(tp/360))})
+			PlayerID:        id,
+			Status:          "checked out",
+			CheckedInTime:   int(tp),
+			TotalTimePlayed: membership.PlayTime + int(tp),
+			AmountOwed:      membership.Amount - int(math.Round(tp/360))})
 	}
 	return
 }

@@ -49,16 +49,18 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 		err = membership.GetMembership(db)
 		if err != nil {
 			roster.Responses = append(roster.Responses, models.ManagerResp{
-				PlayerID:   id,
-				Status:     "checked in, failed to retrieve player membership",
-				TimePlayed: int(tp),
-				AmountOwed: int(math.Round(tp / 360))})
+				PlayerID:        id,
+				Status:          "checked in, failed to retrieve player membership",
+				CheckedInTime:   int(tp),
+				TotalTimePlayed: 0,
+				AmountOwed:      int(math.Round(tp / 360))})
 		} else {
 			roster.Responses = append(roster.Responses, models.ManagerResp{
-				PlayerID:   id,
-				Status:     "checked in",
-				TimePlayed: membership.PlayTime + int(tp),
-				AmountOwed: membership.Amount - int(math.Round(tp/360))})
+				PlayerID:        id,
+				Status:          "checked in",
+				CheckedInTime:   int(tp),
+				TotalTimePlayed: membership.PlayTime + int(tp),
+				AmountOwed:      membership.Amount - int(math.Round(tp/360))})
 		}
 
 	}

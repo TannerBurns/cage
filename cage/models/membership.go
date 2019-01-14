@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"math"
 )
 
 type Membership struct {
@@ -71,11 +72,18 @@ func (membership *Membership) AddPlayTime(db *sql.DB, TransactionType string) (e
 
 func (membership *Membership) UpdatePlayTime(db *sql.DB) (err error) {
 	query := `UPDATE memberships 
-				SET amount = amount - $1,
-					playtime = playtime + $2
-				WHERE player_id=$3
+				SET playtime = playtime + $1
+				WHERE player_id=$2
+				RETURNING playtime`
+	err = db.QueryRow(query, membership.PlayTime, membership.PlayerID).Scan(&membership.PlayTime)
+	if err != nil {
+		return
+	}
+	query = `UPDATE memberships 
+				SET amount = $1
+				WHERE player_id=$2
 				RETURNING id`
-	err = db.QueryRow(query, membership.Amount, membership.PlayTime, membership.PlayerID).Scan(&membership.ID)
+	err = db.QueryRow(query, 0-int(math.Round(float64(membership.PlayTime)/360)), membership.PlayerID).Scan(&membership.ID)
 	if err != nil {
 		return
 	}
