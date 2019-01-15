@@ -254,7 +254,7 @@ func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	players := models.Players{}
+	players := models.PlayerBulk{}
 	err = players.Search(db, first, last)
 	if err != nil {
 		error := models.RespError{Error: "Failed to find any players matching the search content"}

@@ -4,8 +4,13 @@ import (
 	"database/sql"
 )
 
-type Players struct {
-	Players []Player `json:"players"`
+type PlayerBulk struct {
+	Players []PlayerCard `json:"players"`
+}
+
+type PlayerCard struct {
+	Player     Player     `json:"player"`
+	Membership Membership `json:"membership"`
 }
 
 type Player struct {
@@ -91,7 +96,7 @@ func (player *Player) GetPlayer(db *sql.DB) (err error) {
 	return
 }
 
-func (players *Players) Search(db *sql.DB, first string, last string) (err error) {
+func (players *PlayerBulk) Search(db *sql.DB, first string, last string) (err error) {
 	query := `SELECT * FROM players WHERE first=$1 AND last=$2 ORDER BY id DESC`
 
 	rows, err := db.Query(query, first, last)
@@ -109,7 +114,13 @@ func (players *Players) Search(db *sql.DB, first string, last string) (err error
 		if err != nil {
 			return
 		}
-		players.Players = append(players.Players, player)
+		membership := Membership{PlayerID: player.Id}
+		err = membership.GetMembership(db)
+		if err != nil {
+			return
+		}
+		playercard := PlayerCard{Player: player, Membership: membership}
+		players.Players = append(players.Players, playercard)
 	}
 	return
 }
