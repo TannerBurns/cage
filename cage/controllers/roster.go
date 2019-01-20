@@ -44,12 +44,25 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 
 	roster := models.ManagerRoster{}
 	for id, player := range c.Manager.Roster {
+		profile := models.Player{Id: id}
+		err = profile.GetPlayer(db)
+		first := ""
+		last := ""
+		if err != nil {
+			first = "error"
+			last = "error"
+		} else {
+			first = profile.First
+			last = profile.Last
+		}
 		tp := player.PlayerTimer.Elapsed()
 		membership := models.Membership{PlayerID: id}
 		err = membership.GetMembership(db)
 		if err != nil {
 			roster.Responses = append(roster.Responses, models.ManagerResp{
 				PlayerID:        id,
+				First:           first,
+				Last:            last,
 				Status:          "checked in, failed to retrieve player membership",
 				CheckedInTime:   int(tp),
 				TotalTimePlayed: 0,
@@ -57,6 +70,8 @@ func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 		} else {
 			roster.Responses = append(roster.Responses, models.ManagerResp{
 				PlayerID:        id,
+				First:           first,
+				Last:            last,
 				Status:          "checked in",
 				CheckedInTime:   int(tp),
 				TotalTimePlayed: membership.PlayTime + int(tp),

@@ -321,6 +321,15 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	player := models.Player{Id: id}
+	err = player.GetPlayer(db)
+	if err != nil {
+		error := models.RespError{Error: "Failed to find player to check in"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 404)
+		c.Logger.Logging(req, 404)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 	c.Logger.Logging(req, 200)
 	membership := models.Membership{PlayerID: id}
@@ -328,6 +337,8 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		json.NewEncoder(w).Encode(models.ManagerResp{
 			PlayerID:        id,
+			First:           player.First,
+			Last:            player.Last,
 			Status:          "checked in, error retrieving membership information",
 			CheckedInTime:   0,
 			TotalTimePlayed: 0,
@@ -335,6 +346,8 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	} else {
 		json.NewEncoder(w).Encode(models.ManagerResp{
 			PlayerID:        id,
+			First:           player.First,
+			Last:            player.Last,
 			Status:          "checked in",
 			CheckedInTime:   0,
 			TotalTimePlayed: membership.PlayTime,
@@ -387,6 +400,16 @@ func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	player := models.Player{Id: id}
+	err = player.GetPlayer(db)
+	if err != nil {
+		error := models.RespError{Error: "Failed to find player to check out"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 404)
+		c.Logger.Logging(req, 404)
+		return
+	}
+
 	tp := c.Manager.Roster[id].PlayerTimer.Elapsed()
 	c.Manager.CheckOut(id)
 	w.WriteHeader(http.StatusOK)
@@ -396,6 +419,8 @@ func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		json.NewEncoder(w).Encode(models.ManagerResp{
 			PlayerID:        id,
+			First:           player.First,
+			Last:            player.Last,
 			Status:          "checked out, failed to retrieve player membership",
 			CheckedInTime:   int(tp),
 			TotalTimePlayed: 0,
@@ -403,6 +428,8 @@ func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 	} else {
 		json.NewEncoder(w).Encode(models.ManagerResp{
 			PlayerID:        id,
+			First:           player.First,
+			Last:            player.Last,
 			Status:          "checked out",
 			CheckedInTime:   int(tp),
 			TotalTimePlayed: membership.PlayTime + int(tp),
