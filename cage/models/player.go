@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"strconv"
+	"strings"
 )
 
 type PlayerBulk struct {
@@ -96,12 +98,48 @@ func (player *Player) GetPlayer(db *sql.DB) (err error) {
 	return
 }
 
-func (players *PlayerBulk) Search(db *sql.DB, first string, last string) (err error) {
-	query := `SELECT * FROM players WHERE first=$1 AND last=$2 ORDER BY id DESC`
-
-	rows, err := db.Query(query, first, last)
+func (players *PlayerBulk) Search(db *sql.DB, q string) (err error) {
+	var rows *sql.Rows
+	i, err := strconv.Atoi(q)
 	if err != nil {
-		return
+		if strings.Contains(q, "@") && strings.Contains(q, ".") {
+			// email
+			query := `SELECT * FROM players WHERE email=$1 ORDER BY id DESC`
+			rows, err = db.Query(query, q)
+			if err != nil {
+				return err
+			}
+		} else if len(strings.Split(q, " ")) > 1 {
+			// name
+			query := `SELECT * FROM players WHERE first=$1 AND last=$2 ORDER BY id DESC`
+			rows, err = db.Query(query, strings.Split(q, " ")[0], strings.Split(q, " ")[1])
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		dcount := 0
+		j := i
+		for j != 0 {
+			j /= 10
+			dcount++
+		}
+		if dcount >= 7 {
+			// phone number
+			query := `SELECT * FROM players WHERE phone=$1 ORDER BY id DESC`
+			rows, err = db.Query(query, i)
+			if err != nil {
+				return err
+			}
+		} else {
+			// id
+			query := `SELECT * FROM players WHERE id=$1`
+			rows, err = db.Query(query, i)
+			if err != nil {
+				return err
+			}
+
+		}
 	}
 	defer rows.Close()
 	for rows.Next() {

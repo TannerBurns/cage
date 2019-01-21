@@ -236,18 +236,9 @@ func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	first := req.URL.Query().Get("first")
-	if first == "" {
-		error := models.RespError{Error: "Failed to find 'first' variable"}
-		resp, _ := json.Marshal(error)
-		http.Error(w, string(resp), 400)
-		c.Logger.Logging(req, 400)
-		return
-	}
-
-	last := req.URL.Query().Get("last")
-	if last == "" {
-		error := models.RespError{Error: "Failed to find 'last' variable"}
+	q := req.URL.Query().Get("q")
+	if q == "" {
+		error := models.RespError{Error: "Failed to find 'q' variable"}
 		resp, _ := json.Marshal(error)
 		http.Error(w, string(resp), 400)
 		c.Logger.Logging(req, 400)
@@ -255,7 +246,7 @@ func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 	}
 
 	players := models.PlayerBulk{}
-	err = players.Search(db, first, last)
+	err = players.Search(db, q)
 	if err != nil {
 		error := models.RespError{Error: "Failed to find any players matching the search content"}
 		resp, _ := json.Marshal(error)
