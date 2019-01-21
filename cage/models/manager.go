@@ -10,6 +10,7 @@ type Manager struct {
 
 type CheckedInPlayers struct {
 	ID          int
+	Game        Game
 	PlayerTimer *Timer
 	ErrorChan   chan string
 }
@@ -22,20 +23,10 @@ func NewManager() *Manager {
 
 func (check *CheckedInPlayers) Play() (err error) {
 	check.ErrorChan = make(chan string)
-
 	go func() {
 		check.PlayerTimer.Start()
-		defer func() {
-
-		}()
 		for {
 			select {
-			default:
-				// TODO: CHECK IF THE PLAYTIME == ELAPSED TIME === TIME IS UP!
-				/*if check.PlayTime == int(check.timer.Elapsed()) {
-					fmt.Println("Player is out of playtime!")
-					return
-				}*/
 			case <-check.ErrorChan:
 				check.PlayerTimer.Stop()
 				postclient := PostgresConnection{}
@@ -56,7 +47,6 @@ func (check *CheckedInPlayers) Play() (err error) {
 			}
 		}
 	}()
-
 	return
 }
 

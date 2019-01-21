@@ -79,12 +79,12 @@ CREATE TABLE membertransactions (
     type VARCHAR(255) NOT NULL,
     amount INTEGER
 );
-CREATE TABLE gametables (
+CREATE TABLE games (
     id SERIAL PRIMARY KEY,
     created DATE NOT NULL DEFAULT CURRENT_DATE,
     game_id INTEGER NOT NULL,
-    game_name VARCHAR(255) NOT NULL,
-    game_type VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    category VARCHAR(255),
     max_players INTEGER,
     minimum NUMERIC,
     maximum NUMERIC,
