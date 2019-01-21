@@ -203,6 +203,9 @@ func (c *Controller) UpdatePlayer(w http.ResponseWriter, req *http.Request) {
 	return
 }
 
+/*
+Search - search for a player by id, first last, email, or phone numbers. returns 400, 401, 404 for errors
+*/
 func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -260,6 +263,9 @@ func (c *Controller) Search(w http.ResponseWriter, req *http.Request) {
 	return
 }
 
+/*
+CheckIn - check in a player, returns 400, 401, 404 for errors
+*/
 func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -348,6 +354,9 @@ func (c *Controller) CheckIn(w http.ResponseWriter, req *http.Request) {
 	return
 }
 
+/*
+CheckOut - check out player, returns 400, 401, 404 for errors
+*/
 func (c *Controller) CheckOut(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

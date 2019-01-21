@@ -9,6 +9,9 @@ import (
 	"github.com/gorilla/context"
 )
 
+/*
+GetRoster - returns the current checked in player. returns 400, 401, 404 for errors
+*/
 func (c *Controller) GetRoster(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

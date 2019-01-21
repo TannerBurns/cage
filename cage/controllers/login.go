@@ -10,6 +10,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+/*
+Creds - temporary holder for username, password
+*/
 type Creds struct {
 	Username string
 	Password string

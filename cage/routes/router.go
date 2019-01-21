@@ -136,6 +136,28 @@ func NewRouter() (*mux.Router, *models.Logger) {
 			api_route + "/employee/{id}/roles",
 			controllers.AuthenticationMiddleware(controller.GetRoles),
 		},
+	}
+	GameRoutes := Routes{
+		Route{
+			"CreateGame",
+			"POST",
+			api_route + "/game",
+			controllers.AuthenticationMiddleware(controller.CreateGame),
+		},
+		Route{
+			"ReadGame",
+			"GET",
+			api_route + "/game/{id}",
+			controllers.AuthenticationMiddleware(controller.GetGame),
+		},
+		Route{
+			"UpdateGame",
+			"PUT",
+			api_route + "/game/{id}",
+			controllers.AuthenticationMiddleware(controller.UpdateGame),
+		},
+	}
+	RosterRoutes := Routes{
 		Route{
 			"GetRoster",
 			"GET",
@@ -144,7 +166,7 @@ func NewRouter() (*mux.Router, *models.Logger) {
 		},
 	}
 
-	Routes := []Routes{AuthRoutes, PlayerRoutes, EmployeeRoutes}
+	Routes := []Routes{AuthRoutes, PlayerRoutes, EmployeeRoutes, GameRoutes, RosterRoutes}
 
 	router := mux.NewRouter().StrictSlash(true)
 	for _, routes := range Routes {

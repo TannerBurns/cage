@@ -82,7 +82,7 @@ CREATE TABLE membertransactions (
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
     created DATE NOT NULL DEFAULT CURRENT_DATE,
-    game_id INTEGER NOT NULL,
+    game_id VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     category VARCHAR(255),
     max_players INTEGER,
