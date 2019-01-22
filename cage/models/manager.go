@@ -93,6 +93,7 @@ func (manager *Manager) LeaveGame(PlayerID int) (err error) {
 	if err != nil {
 		return
 	}
+	manager.Roster[PlayerID].Games = nil
 	return
 }
 
