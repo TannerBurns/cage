@@ -1,4 +1,5 @@
 CREATE DATABASE cage;
+
 \c cage;
 CREATE EXTENSION pgcrypto;
 CREATE TABLE players (
@@ -95,11 +96,10 @@ CREATE TABLE games (
 CREATE TABLE playertransactions (
     id SERIAL PRIMARY KEY,
     player_id INTEGER NOT NULL,
-    game_id INTEGER NOT NULL,
+    game_id VARCHAR(255) NOT NULL,
     created DATE NOT NULL DEFAULT CURRENT_DATE,
     time_played INTEGER NOT NULL
 );
-
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     employee_id INTEGER NOT NULL,
@@ -120,6 +120,8 @@ CREATE TABLE house (
     type VARCHAR(255),
     total NUMERIC
 );
+
+/*Cage Init*/
 INSERT INTO permissions (role_id, access_id) VALUES(1, 1);
 INSERT INTO permissions (role_id, access_id) VALUES(2, 2);
 INSERT INTO permissions (role_id, access_id) VALUES(3, 3);

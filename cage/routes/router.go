@@ -92,6 +92,20 @@ func NewRouter() (*mux.Router, *models.Logger) {
 			api_route + "/player/{id}/checkout",
 			controllers.AuthenticationMiddleware(controller.CheckOut),
 		},
+		/*
+			Route{
+				"SitPlayer",
+				"Get",
+				api_route + "/player/{id}/sit/{game_id}",
+				controllers.AuthenticationMiddleware(controller.SitPlayer),
+			},
+			Route{
+				"MovePlayer",
+				"Get",
+				api_route + "/player/{id}/move/{game_id}",
+				controllers.AuthenticationMiddleware(controller.MovePlayer),
+			},
+		*/
 	}
 	EmployeeRoutes := Routes{
 		Route{
@@ -118,12 +132,14 @@ func NewRouter() (*mux.Router, *models.Logger) {
 			api_route + "/employee/{id}/login",
 			controllers.AuthenticationMiddleware(controller.CreateLogin),
 		},
-		/*Route{
-			"UpdatePassword",
-			"PUT",
-			api_route + "/employee/{id}/login",
-			controllers.AuthenticationMiddleware(controller.UpdatePassword),
-		},*/
+		/*
+			Route{
+				"UpdatePassword",
+				"PUT",
+				api_route + "/employee/{id}/login",
+				controllers.AuthenticationMiddleware(controller.UpdatePassword),
+			},
+		*/
 		Route{
 			"AddRole",
 			"POST",
