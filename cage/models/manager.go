@@ -106,9 +106,9 @@ func (manager *Manager) MoveGame(PlayerID int, game Game) (err error) {
 }
 
 func (check *CheckedInPlayers) CreateTransaction(db *sql.DB) (err error) {
-	query := `INSERT INTO playertransactions (player_id, game_id, time_played)
-	VALUES($1, $2, $3)`
+	query := `INSERT INTO playertransactions (player_id, game_id, category, time_played)
+	VALUES($1, $2, $3, $4)`
 
-	_, err = db.Query(query, check.ID, check.Games.Game.GameID, int(check.Games.GameTimer.TotalElapsed))
+	_, err = db.Query(query, check.ID, check.Games.Game.GameID, check.Games.Game.Category, int(check.Games.GameTimer.TotalElapsed))
 	return
 }

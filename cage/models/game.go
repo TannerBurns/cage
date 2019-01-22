@@ -3,17 +3,17 @@ package models
 import "database/sql"
 
 type Game struct {
-	ID           int     `json:"id"`
-	Created      string  `json:"created"`
-	GameID       string  `json:"game_id"`
-	Name         string  `json:"name"`
-	GameCategory string  `json:"category"`
-	MaxPlayers   int     `json:"max_players"`
-	Minimum      float32 `json:"minimum"`
-	Maximum      float32 `json:"maximum"`
-	Interval     int     `json:"interval"`
-	Rules        string  `json:"rules"`
-	Notes        string  `json:"notes"`
+	ID         int     `json:"id"`
+	Created    string  `json:"created"`
+	GameID     string  `json:"game_id"`
+	Name       string  `json:"name"`
+	Category   string  `json:"category"`
+	MaxPlayers int     `json:"max_players"`
+	Minimum    float32 `json:"minimum"`
+	Maximum    float32 `json:"maximum"`
+	Interval   int     `json:"interval"`
+	Rules      string  `json:"rules"`
+	Notes      string  `json:"notes"`
 }
 
 func (gt *Game) CreateGame(db *sql.DB) (err error) {
@@ -23,7 +23,7 @@ func (gt *Game) CreateGame(db *sql.DB) (err error) {
               RETURNING id;`
 
 	err = db.QueryRow(query, gt.GameID, gt.Name,
-		gt.GameCategory, gt.MaxPlayers, gt.Minimum, gt.Maximum,
+		gt.Category, gt.MaxPlayers, gt.Minimum, gt.Maximum,
 		gt.Interval, gt.Rules, gt.Notes).Scan(&gt.ID)
 	if err != nil {
 		return
@@ -45,7 +45,7 @@ func (gt *Game) UpdateGame(db *sql.DB) (err error) {
 				WHERE game_id=$10
 				RETURNING id;`
 	err = db.QueryRow(query, gt.GameID, gt.Name,
-		gt.GameCategory, gt.MaxPlayers, gt.Minimum, gt.Maximum,
+		gt.Category, gt.MaxPlayers, gt.Minimum, gt.Maximum,
 		gt.Interval, gt.Rules, gt.Notes, gt.GameID).Scan(&gt.ID)
 	if err != nil {
 		return
@@ -57,7 +57,7 @@ func (gt *Game) GetGame(db *sql.DB) (err error) {
 	query := `SELECT * FROM games WHERE game_id=$1`
 
 	err = db.QueryRow(query, gt.GameID).Scan(&gt.ID, &gt.Created, &gt.GameID, &gt.Name,
-		&gt.GameCategory, &gt.MaxPlayers, &gt.Minimum, &gt.Maximum,
+		&gt.Category, &gt.MaxPlayers, &gt.Minimum, &gt.Maximum,
 		&gt.Interval, &gt.Rules, &gt.Notes)
 
 	if err != nil {

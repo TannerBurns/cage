@@ -97,6 +97,7 @@ CREATE TABLE playertransactions (
     id SERIAL PRIMARY KEY,
     player_id INTEGER NOT NULL,
     game_id VARCHAR(255) NOT NULL,
+    category VARCHAR(255),
     created DATE NOT NULL DEFAULT CURRENT_DATE,
     time_played INTEGER NOT NULL
 );
