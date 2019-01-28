@@ -16,9 +16,6 @@ func main() {
 	logs := &models.Logger{}
 	logs.InitLogging("House - API", os.Stdout, os.Stdout, os.Stdout, os.Stderr, os.Stderr, os.Stdout)
 
-	//host := "localhost"
-	//port := "5000"
-
 	router, conlogger := routes.NewRouter() // create routes
 
 	f, err := os.OpenFile("connections.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

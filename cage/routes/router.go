@@ -21,6 +21,7 @@ func NewRouter() (*mux.Router, *models.Logger) {
 	controller := &controllers.Controller{Name: "API.Controller"}
 	controller.Manager = models.NewManager()
 	controller.Logger = models.NewLogger()
+	controller.Session = models.NewSession()
 	api_route := "/house/api/v1"
 
 	AuthRoutes := Routes{

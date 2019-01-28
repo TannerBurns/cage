@@ -13,7 +13,6 @@ type CheckedInPlayers struct {
 	ID          int
 	Games       *Games
 	PlayerTimer *Timer
-	ErrorChan   chan string
 }
 
 type Games struct {
@@ -27,51 +26,31 @@ func NewManager() *Manager {
 	return manager
 }
 
-func (check *CheckedInPlayers) Play() (err error) {
-	check.ErrorChan = make(chan string)
-	go func() {
-		check.PlayerTimer.Start()
-		for {
-			select {
-			case <-check.ErrorChan:
-				check.PlayerTimer.Stop()
-				postclient := PostgresConnection{}
-				db, err := postclient.Connect()
-				if err != nil {
-					return
-				}
-				defer db.Close()
-				membership := Membership{PlayerID: check.ID}
-				err = membership.GetPlayTime(db)
-				if err != nil {
-					return
-				}
-				membership.PlayTime = int(check.PlayerTimer.TotalElapsed)
-				membership.Amount = int(math.Round(check.PlayerTimer.TotalElapsed / 360))
-				err = membership.UpdatePlayTime(db)
-				return
-			}
-		}
-	}()
-	return
-}
-
 func (manager *Manager) CheckIn(PlayerID int) (err error) {
 	checkIn := CheckedInPlayers{ID: PlayerID}
 	checkIn.PlayerTimer = NewTimer()
-	err = checkIn.Play()
+	checkIn.PlayerTimer.Start()
 	manager.Roster[PlayerID] = &checkIn
 	return
 }
 
-func (manager *Manager) CheckOut(PlayerID int) {
+func (manager *Manager) CheckOut(db *sql.DB, PlayerID int) (err error) {
+	manager.Roster[PlayerID].PlayerTimer.Stop()
 	if manager.Roster[PlayerID].Games != nil {
 		if int(manager.Roster[PlayerID].Games.GameTimer.Elapsed()) > 0 {
-			manager.LeaveGame(PlayerID)
+			manager.LeaveGame(db, PlayerID)
 		}
 	}
-	close(manager.Roster[PlayerID].ErrorChan)
+	membership := Membership{PlayerID: PlayerID}
+	err = membership.GetPlayTime(db)
+	if err != nil {
+		return
+	}
+	membership.PlayTime = int(manager.Roster[PlayerID].PlayerTimer.TotalElapsed)
+	membership.Amount = int(math.Round(manager.Roster[PlayerID].PlayerTimer.TotalElapsed / 360))
+	err = membership.UpdatePlayTime(db)
 	delete(manager.Roster, PlayerID)
+	return
 }
 
 func (manager *Manager) JoinGame(PlayerID int, game Game) {
@@ -81,14 +60,8 @@ func (manager *Manager) JoinGame(PlayerID int, game Game) {
 	// write to database
 }
 
-func (manager *Manager) LeaveGame(PlayerID int) (err error) {
+func (manager *Manager) LeaveGame(db *sql.DB, PlayerID int) (err error) {
 	manager.Roster[PlayerID].Games.GameTimer.Stop()
-	postclient := PostgresConnection{}
-	db, err := postclient.Connect()
-	if err != nil {
-		return
-	}
-	defer db.Close()
 	err = manager.Roster[PlayerID].CreateTransaction(db)
 	if err != nil {
 		return
@@ -97,8 +70,8 @@ func (manager *Manager) LeaveGame(PlayerID int) (err error) {
 	return
 }
 
-func (manager *Manager) MoveGame(PlayerID int, game Game) (err error) {
-	err = manager.LeaveGame(PlayerID)
+func (manager *Manager) MoveGame(db *sql.DB, PlayerID int, game Game) (err error) {
+	err = manager.LeaveGame(db, PlayerID)
 	if err != nil {
 		return
 	}

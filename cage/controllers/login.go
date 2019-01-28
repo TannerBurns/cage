@@ -36,8 +36,7 @@ func (c *Controller) CreateLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)

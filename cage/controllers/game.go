@@ -18,8 +18,7 @@ func (c *Controller) GetGame(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
@@ -79,8 +78,7 @@ func (c *Controller) CreateGame(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
@@ -139,8 +137,7 @@ func (c *Controller) UpdateGame(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)

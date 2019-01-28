@@ -19,6 +19,7 @@ type Controller struct {
 	Name    string
 	Manager *models.Manager
 	Logger  *models.Logger
+	Session *models.Connection
 }
 
 /*
@@ -73,8 +74,7 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 	_ = json.NewDecoder(req.Body).Decode(&login)
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
@@ -94,7 +94,6 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//TO-DO: LOGIN AUTHORIZATION
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"employee_id": employeeLogin.ID,
 	})

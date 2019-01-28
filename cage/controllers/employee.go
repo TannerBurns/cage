@@ -18,8 +18,7 @@ func (c *Controller) CreateEmployee(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
@@ -78,8 +77,7 @@ func (c *Controller) GetEmployee(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
@@ -139,8 +137,7 @@ func (c *Controller) UpdateEmployee(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	//connect to database
-	postclient := models.PostgresConnection{}
-	db, err := postclient.Connect()
+	db, err := c.Session.Connect()
 	if err != nil {
 		error := models.RespError{Error: "Failed to connect, cannot reach database"}
 		resp, _ := json.Marshal(error)
