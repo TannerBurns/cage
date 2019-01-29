@@ -82,6 +82,7 @@ CREATE TABLE membertransactions (
 );
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
+    active BOOLEAN NOT NULL,
     created DATE NOT NULL DEFAULT CURRENT_DATE,
     game_id VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
