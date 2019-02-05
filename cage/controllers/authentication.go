@@ -94,10 +94,29 @@ func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	roles := models.Roles{EmployeeID: employeeLogin.ID}
+	err = roles.GetRoles(db)
+	if err != nil {
+		error := models.RespError{Error: "Error during authorization validation. Unable to find valid roles for employee"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
+		return
+	}
+	access, err := roles.Roles[0].GetAccessLevel(db)
+	if err != nil {
+		error := models.RespError{Error: "Error during authorization validation. Unable to find verify employee access"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
+		return
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"employee_id": employeeLogin.ID,
+		"role":        roles.Roles[0].Role,
+		"role_id":     roles.Roles[0].RoleID,
+		"access_id":   access,
 	})
-
 	tokenString, err := token.SignedString([]byte("c3VwZXJzZWNyZXRzdXBlcmR1cGVyc2VjcmV0"))
 	if err != nil {
 		error := models.RespError{Error: "Make sure you have permissions to use this route.Failed  to get token"}

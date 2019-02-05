@@ -18,30 +18,13 @@ func (auth *Authentication) Authorize(db *sql.DB, aLevel int) (authorized bool, 
 	if !ok {
 		return
 	}
-	id, ok := dec["employee_id"].(float64)
+	access_id, ok := dec["access_id"].(float64)
 	if !ok {
 		return
 	}
-
-	employee := &Employee{Id: int(id)}
-	err = employee.GetEmployee(db)
-	if err != nil {
+	if int(access_id) <= aLevel {
+		authorized = true
 		return
-	}
-	roles, err := employee.GetRoles(db)
-	if err != nil {
-		return
-	}
-	for _, r := range roles.Roles {
-		authLevel, err := r.GetAccessLevel(db)
-		if err != nil {
-			break
-		}
-		if authLevel <= aLevel {
-			authorized = true
-			auth.EmployeeID = employee.Id
-			break
-		}
 	}
 	return
 }
