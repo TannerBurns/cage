@@ -14,7 +14,10 @@ type Connection struct {
 func NewSession() *Connection {
 	connection := &Connection{}
 	connection.Config = &ConfigParser{Path: "./config/config.dev.ini"}
-	_ = connection.Config.Parse()
+	err := connection.Config.Parse()
+	if err != nil {
+		fmt.Println(err)
+	}
 	return connection
 }
 

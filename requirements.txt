@@ -1,3 +1,4 @@
+github.com/lib/pq
 github.com/gorilla/handlers
 github.com/gorilla/mux
 github.com/gorilla/context

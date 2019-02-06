@@ -24,6 +24,9 @@ func (config *ConfigParser) Parse() (err error) {
 	}
 	sections := strings.Split(strings.Replace(string(raw), "\r", "", -1), "\n\n")
 	for _, v := range sections {
+		if v == "" {
+			continue
+		}
 		lines := strings.Split(v, "\n")
 		if !(strings.Contains(lines[0], "[") && strings.Contains(lines[0], "]")) {
 			err = errors.New("Failed to parse format")
