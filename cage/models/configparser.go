@@ -37,6 +37,9 @@ func (config *ConfigParser) Parse() (err error) {
 
 		config.Parsed[n] = make(map[string]string)
 		for _, v2 := range lines[1:] {
+			if v2 == "" {
+				continue
+			}
 			line := strings.Split(v2, "=")
 			key := line[0]
 			val := line[1]
