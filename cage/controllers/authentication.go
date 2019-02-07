@@ -69,10 +69,15 @@ GetToken - receive a token for authentication, returns 400 for errors
 func (c *Controller) GetToken(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	var login Login
-	_ = json.NewDecoder(req.Body).Decode(&login)
-
+	err := json.NewDecoder(req.Body).Decode(&login)
+	if err != nil {
+		error := models.RespError{Error: "Failed request, could not parse json. Looking for username and password"}
+		resp, _ := json.Marshal(error)
+		http.Error(w, string(resp), 400)
+		c.Logger.Logging(req, 400)
+		return
+	}
 	//connect to database
 	db, err := c.Session.Connect()
 	if err != nil {
