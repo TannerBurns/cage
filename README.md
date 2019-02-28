@@ -11,19 +11,19 @@
 
 # Current features
     
-    managment:
+    Management:
 
         add players
         read players
         update players
         
         add membership
-        read memberships
+        read membership
         update membership
 
-        add employees
-        read employees
-        updated employees
+        add employee
+        read employee
+        updated employee
         
         add roles
         read roles
@@ -33,6 +33,9 @@
         remove permissions
         
         add compensations
+        
+        log transactions
+        log checkin/checkout
         
     API:
         
