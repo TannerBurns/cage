@@ -1,4 +1,4 @@
-/*CREATE DATABASE cage;*/
+CREATE DATABASE cage;
 
 \c cage;
 CREATE EXTENSION pgcrypto;
@@ -157,6 +157,6 @@ with alogin as (
     RETURNING id
 )
 INSERT INTO logins (employee_id, username, password)
-VALUES ((select id from alogin), '4pp4c3',  crypt('p0k3r4cc3ss!', gen_salt('bf')));
+VALUES ((select id from alogin), 'admin',  crypt('pokeradmin', gen_salt('bf')));
 INSERT INTO roles (employee_id, role, role_id, notes) 
 VALUES (1, 'Admin', 1, 'Admin account');
